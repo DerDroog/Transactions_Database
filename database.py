@@ -1,0 +1,143 @@
+from tkinter import *
+import sqlite3
+
+#NEXT STEPS
+#Load database entry - modify / delete
+#Display current transaction id
+
+
+
+root = Tk()
+root.title('Transaction manager')
+
+'''
+c.execute("""CREATE TABLE transactions (
+        date text,
+        voucher integer,
+        val_num integer,
+        qty real,
+        price real,
+        currency text,
+        rate real
+        )""")
+'''
+
+# Create Submit Function for Database
+
+def submit():
+    # Create a database or connect to one
+    conn = sqlite3.connect('transactions.db')
+
+    # Create Cursor
+    c = conn.cursor()
+
+    # Create table
+    c.execute("INSERT INTO transactions VALUES (:date, :val_num, :voucher, :qty, :price, :currency, :rate)",
+              {
+                  'date': date.get(),
+                  'val_num' : val_num.get(),
+                  'voucher' : voucher.get(),
+                  'qty' : qty.get(),
+                  'price' : price.get(),
+                  'currency' : currency.get(),
+                  'rate' : rate.get()
+              })
+    # Commit Changes
+    conn.commit()
+
+    # Close Database
+
+    conn.close()
+
+    # Clear the Text Boxes
+    date.delete(0, END)
+    voucher.delete(0, END)
+    val_num.delete(0, END)
+    qty.delete(0, END)
+    price.delete(0, END)
+    currency.delete(0, END)
+    rate.delete(0, END)
+
+# Create Query Function
+
+def query():
+
+    conn = sqlite3.connect('transactions.db')
+    c = conn.cursor()
+    c.execute("SELECT *, oid FROM transactions")
+    records = c.fetchall()
+    print(records)
+    return
+
+
+# Introduction Label
+
+title_label = Label(root, text="Database transactions", font='Arial 14 bold')
+title_label.grid(row=0, column=0, padx=20, ipady=10, columnspan=2)
+
+# Create Text Entry Boxes
+
+textbox_row = 4
+
+date = Entry(root, width=15)
+date.grid(row=2, column=1, padx=20, sticky=S)
+
+voucher = Entry(root, width=15)
+voucher.grid(row=2, column=2, padx=20, sticky=S)
+
+val_num = Entry(root, width=15)
+val_num.grid(row=textbox_row, column=0, padx=20, sticky=W)
+
+qty = Entry(root, width=15)
+qty.grid(row=textbox_row, column=1, padx=20)
+
+price = Entry(root, width=15)
+price.grid(row=textbox_row, column=2, padx=20)
+
+currency = Entry(root, width=15)
+currency.grid(row=textbox_row, column=3, padx=20)
+
+rate = Entry(root, width=20)
+rate.grid(row=textbox_row, column=4, padx=20)
+
+# Create Text Box Labels
+
+labels_row = 3
+
+transactionid_label = Label(root, text="Transaktions ID:" )
+transactionid_label.grid(row=1, column=0, padx=20, sticky=NW)
+
+transactionid = Label(root, text="number" )
+transactionid.grid(row=2, column=0, padx=20, sticky=SW)
+
+date_label = Label(root, text="Transaktionsdatum")
+date_label.grid(row=1, column=1, padx=20, sticky=NW)
+
+voucher_label = Label(root, text="Beleg")
+voucher_label.grid(row=1, column=2, padx=20, sticky=NW)
+
+val_num_label = Label(root, text="Valorennummer")
+val_num_label.grid(row=labels_row, column=0, padx=20, sticky=W)
+
+qty_label = Label(root, text="Anzahl")
+qty_label.grid(row=labels_row, column=1, padx=20, sticky=W)
+
+price_label = Label(root, text="Preis")
+price_label.grid(row=labels_row, column=2, padx=20, sticky=W)
+
+currency_label = Label(root, text="Währung")
+currency_label.grid(row=labels_row, column=3, padx=20, sticky=W)
+
+rate_label = Label(root, text="FW-Kurs")
+rate_label.grid(row=labels_row, column=4, padx=20, sticky=W)
+
+
+# Create Submit Button
+
+submit_btn = Button(root, text="Add Record to Database", command=submit)
+submit_btn.grid(row=6, column=0, columnspan=5, pady=10, padx=10, ipadx=100)
+
+# Create a Query Button
+query_btn = Button(root, text="Abfrage", command=query)
+query_btn.grid(row=0, column=4)
+root.mainloop()
