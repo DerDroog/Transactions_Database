@@ -1,10 +1,9 @@
 from tkinter import *
 import sqlite3
 
-#NEXT STEPS
-#Load database entry - modify / delete
-#Display current transaction id
-
+# NEXT STEPS
+# Load database entry - modify / delete
+# Display current transaction id
 
 
 root = Tk()
@@ -22,6 +21,7 @@ c.execute("""CREATE TABLE transactions (
         )""")
 '''
 
+
 # Create Submit Function for Database
 
 def submit():
@@ -31,16 +31,16 @@ def submit():
     # Create Cursor
     c = conn.cursor()
 
-    # Create table
     c.execute("INSERT INTO transactions VALUES (:date, :val_num, :voucher, :qty, :price, :currency, :rate)",
               {
+
                   'date': date.get(),
-                  'val_num' : val_num.get(),
-                  'voucher' : voucher.get(),
-                  'qty' : qty.get(),
-                  'price' : price.get(),
-                  'currency' : currency.get(),
-                  'rate' : rate.get()
+                  'val_num': val_num.get(),
+                  'voucher': voucher.get(),
+                  'qty': qty.get(),
+                  'price': price.get(),
+                  'currency': currency.get(),
+                  'rate': rate.get()
               })
     # Commit Changes
     conn.commit()
@@ -58,15 +58,20 @@ def submit():
     currency.delete(0, END)
     rate.delete(0, END)
 
+
 # Create Query Function
 
 def query():
+    query = Tk()
+    query.title('Abfrage ausführen')
+    query.geometry('500x500')
 
     conn = sqlite3.connect('transactions.db')
     c = conn.cursor()
     c.execute("SELECT *, oid FROM transactions")
     records = c.fetchall()
     print(records)
+    query.mainloop()
     return
 
 
@@ -104,10 +109,10 @@ rate.grid(row=textbox_row, column=4, padx=20)
 
 labels_row = 3
 
-transactionid_label = Label(root, text="Transaktions ID:" )
+transactionid_label = Label(root, text="Transaktions ID:")
 transactionid_label.grid(row=1, column=0, padx=20, sticky=NW)
 
-transactionid = Label(root, text="number" )
+transactionid = Label(root, text="number")
 transactionid.grid(row=2, column=0, padx=20, sticky=SW)
 
 date_label = Label(root, text="Transaktionsdatum")
@@ -130,7 +135,6 @@ currency_label.grid(row=labels_row, column=3, padx=20, sticky=W)
 
 rate_label = Label(root, text="FW-Kurs")
 rate_label.grid(row=labels_row, column=4, padx=20, sticky=W)
-
 
 # Create Submit Button
 
