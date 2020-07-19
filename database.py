@@ -9,18 +9,6 @@ import sqlite3
 root = Tk()
 root.title('Transaction manager')
 
-'''
-c.execute("""CREATE TABLE transactions (
-        date text,
-        voucher integer,
-        val_num integer,
-        qty real,
-        price real,
-        currency text,
-        rate real
-        )""")
-'''
-
 
 # Create Submit Function for Database
 
@@ -31,17 +19,18 @@ def submit():
     # Create Cursor
     c = conn.cursor()
 
-    c.execute("INSERT INTO transactions VALUES (:date, :val_num, :voucher, :qty, :price, :currency, :rate)",
-              {
-
-                  'date': date.get(),
-                  'val_num': val_num.get(),
-                  'voucher': voucher.get(),
-                  'qty': qty.get(),
-                  'price': price.get(),
-                  'currency': currency.get(),
-                  'rate': rate.get()
-              })
+    c.execute(
+        """INSERT INTO transactions (date, val_num, voucher, qty, price, currency, rate) 
+        VALUES (:date, :val_num, :voucher, :qty, :price, :currency, :rate)""",
+        {
+            'date': date.get(),
+            'val_num': val_num.get(),
+            'voucher': voucher.get(),
+            'qty': qty.get(),
+            'price': price.get(),
+            'currency': currency.get(),
+            'rate': rate.get()
+        })
     # Commit Changes
     conn.commit()
 
@@ -65,15 +54,31 @@ def query():
     query = Tk()
     query.title('Abfrage ausführen')
     query.geometry('500x500')
-
+    voucher_num_label = Label(query, text='Beleg-Nr.')
+    voucher_num_label.grid(row=0, column=0)
+    global voucher_num
+    voucher_num = Entry(query, width= 20)
+    voucher_num.grid(row=0, column= 1)
+    query_voucher = Button(query, text="Beleg anzeigen", command=show_voucher)
+    query_voucher.grid(row=1, column=0)
     conn = sqlite3.connect('transactions.db')
     c = conn.cursor()
-    c.execute("SELECT *, oid FROM transactions")
+    c.execute("SELECT * FROM transactions")
     records = c.fetchall()
     print(records)
     query.mainloop()
     return
 
+def show_voucher():
+    conn = sqlite3.connect('transactions.db')
+    c = conn.cursor()
+    voucherqry = voucher_num.get()
+    c.execute("SELECT * FROM transactions WHERE voucher = ? ", (voucherqry,))
+    result = c.fetchall()
+    print(result)
+
+
+    return
 
 # Introduction Label
 
@@ -145,3 +150,19 @@ submit_btn.grid(row=6, column=0, columnspan=5, pady=10, padx=10, ipadx=100)
 query_btn = Button(root, text="Abfrage", command=query)
 query_btn.grid(row=0, column=4)
 root.mainloop()
+
+# conn = sqlite3.connect('transactions.db')
+
+# Create Cursor
+# c = conn.cursor()
+
+# c.execute("""
+#        CREATE TABLE transactions (
+#        transactionid INTEGER PRIMARY KEY AUTOINCREMENT,
+#        date text,
+#        voucher integer,
+#        val_num integer,
+#        qty real,
+#        price real,
+#        currency text,
+#        rate real        )""")
