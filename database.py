@@ -51,34 +51,50 @@ def submit():
 # Create Query Function
 
 def query():
+    global query
     query = Tk()
     query.title('Abfrage ausführen')
     query.geometry('500x500')
     voucher_num_label = Label(query, text='Beleg-Nr.')
     voucher_num_label.grid(row=0, column=0)
     global voucher_num
-    voucher_num = Entry(query, width= 20)
-    voucher_num.grid(row=0, column= 1)
+    voucher_num = Entry(query, width=20)
+    voucher_num.grid(row=0, column=1)
     query_voucher = Button(query, text="Beleg anzeigen", command=show_voucher)
     query_voucher.grid(row=1, column=0)
-    conn = sqlite3.connect('transactions.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM transactions")
-    records = c.fetchall()
-    print(records)
+    # conn = sqlite3.connect('transactions.db')
+    # c = conn.cursor()
+    # c.execute("SELECT * FROM transactions")
+    # records = c.fetchall()
+    # print(records)
     query.mainloop()
     return
 
+
 def show_voucher():
     conn = sqlite3.connect('transactions.db')
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
     voucherqry = voucher_num.get()
     c.execute("SELECT * FROM transactions WHERE voucher = ? ", (voucherqry,))
+
     result = c.fetchall()
-    print(result)
+    memb_total = 0
+    for member in result: #Loop through Row Object
+        for key in member: #Loop through Dictionary
+            column_descr = Label(query, text=str(member.keys()[memb_total]))
+            column_descr.grid(column=memb_total, row=3)
+            memb_total += 1
 
-
+    output_total = 0
+    for j in range(0, len(result)):
+        for i in result[j]:
+            results_label = Label(query, text=str(i))
+            results_label.grid(column=output_total, row=4)
+            output_total += 1
+            print(i, "\n")
     return
+
 
 # Introduction Label
 
