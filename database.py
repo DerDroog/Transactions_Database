@@ -9,6 +9,12 @@ import sqlite3
 root = Tk()
 root.title('Transaction manager')
 
+conn = sqlite3.connect("transactions.db")
+c = conn.cursor()
+c.execute("""SELECT * FROM transactions""")
+a = c.fetchall()
+print(a)
+
 
 # Create Submit Function for Database
 
@@ -62,6 +68,8 @@ def query():
     voucher_num.grid(row=0, column=1)
     query_voucher = Button(query, text="Beleg anzeigen", command=show_voucher)
     query_voucher.grid(row=1, column=0)
+    modify_voucher = Button(query, text="Beleg bearbeiten", command=modify)
+    modify_voucher.grid(row=1, column=1)
     # conn = sqlite3.connect('transactions.db')
     # c = conn.cursor()
     # c.execute("SELECT * FROM transactions")
@@ -80,8 +88,8 @@ def show_voucher():
 
     result = c.fetchall()
     memb_total = 0
-    for member in result: #Loop through Row Object
-        for key in member: #Loop through Dictionary
+    for member in result:  # Loop through Row Object
+        for key in member:  # Loop through Dictionary
             column_descr = Label(query, text=str(member.keys()[memb_total]))
             column_descr.grid(column=memb_total, row=3)
             memb_total += 1
@@ -92,8 +100,43 @@ def show_voucher():
             results_label = Label(query, text=str(i))
             results_label.grid(column=output_total, row=4)
             output_total += 1
-            print(i, "\n")
+            print(dict(result[j]), i, "\n")
     return
+
+
+# Function to modify current voucher
+
+def modify():
+    modify = Tk()
+    modify.title("Beleg bearbeiten")
+    modify.geometry('500x200')
+
+    conn = sqlite3.connect("transactions.db")
+    # c = conn.cursor()
+    # c.execute("""UPDATE transactions
+    #              Set
+    #                 date = :date
+    #                 val_num = :val_num
+    #                 voucher = :voucher
+    #                 qty = :qty
+    #                 price = :price
+    #                 currency = :currency
+    #                 rate = :rate)
+    #              WHERE
+    #                 voucher = :voucher_num
+    #                 """,
+    #           {
+    #               'date': date.get(),
+    #               'val_num': val_num.get(),
+    #               'voucher': voucher.get(),
+    #               'qty': qty.get(),
+    #               'price': price.get(),
+    #               'currency': currency.get(),
+    #               'rate': rate.get(),
+    #               'voucher_num': voucher_num.get()
+    #           })
+    modify.mainloop()
+    conn.close()
 
 
 # Introduction Label
@@ -133,7 +176,15 @@ labels_row = 3
 transactionid_label = Label(root, text="Transaktions ID:")
 transactionid_label.grid(row=1, column=0, padx=20, sticky=NW)
 
-transactionid = Label(root, text="number")
+number = StringVar()
+
+conn = sqlite3.connect("transactions.db")
+c = conn.cursor()
+c.execute("""SELECT Max(transactionid) FROM transactions""")
+max_trans_id = c.fetchone()
+number.set(max_trans_id)
+
+transactionid = Label(root, textvar=number)
 transactionid.grid(row=2, column=0, padx=20, sticky=SW)
 
 date_label = Label(root, text="Transaktionsdatum")
@@ -175,10 +226,10 @@ root.mainloop()
 # c.execute("""
 #        CREATE TABLE transactions (
 #        transactionid INTEGER PRIMARY KEY AUTOINCREMENT,
-#        date text,
-#        voucher integer,
-#        val_num integer,
-#        qty real,
-#        price real,
+#        date text NOT NULL,
+#        voucher integer NOT NULL UNIQUE,
+#        val_num integer NOT NULL,
+#        qty real NOT NULL,
+#        price real NOT NULL,
 #        currency text,
 #        rate real        )""")
